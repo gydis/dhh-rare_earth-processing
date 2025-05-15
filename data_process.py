@@ -4,6 +4,10 @@ import itertools as it
 from tqdm import tqdm
 import sys
 import pandas as pd
+import os
+import pyarrow as pa
+import pyarrow.parquet as pq
+import random
 
 #all lower case
 #get rid of punctuation?
@@ -13,8 +17,12 @@ import pandas as pd
 #comparing function extra?
 #output: true or false (edited) 
 
+# TODO: add command line arguments for language, batch size and proportion of data
 lang = "rus_Cyrl"
-BATCH_SIZE = 1000
+
+BATCH_SIZE = 10000
+PATH_OUT = "data/processed/"
+os.makedirs(PATH_OUT, exist_ok=True)
 
 lang_dict = {
     "rus_Cyrl": "Russian",
@@ -37,7 +45,7 @@ def lang_func_norm_dummy(text):
 # Read the key csv
 # Normalize the keys in the list
 
-keywords_df = pd.read_csv('Keywords - Лист1.csv')  
+keywords_df = pd.read_csv('keywords.csv')  
 
 def normalize_keywords(lang, keywords):
     language = lang_dict[lang]
@@ -48,17 +56,23 @@ def normalize_keywords(lang, keywords):
 dict_of_normalized_keyword_lists = {}
 
 for l in lang_dict:
-    normalized_keywords = normaliz_keywords(l, keywords_df)
+    normalized_keywords = normalize_keywords(l, keywords_df)
     dict_of_normalized_keyword_lists[l] = normalized_keywords
 
-def compare_funct(text, keywords):
+# TODO: rn there's a bug, probably should use exact stem matches instead of substring matches
+keywords = dict_of_normalized_keyword_lists[lang]
+def compare_funct(text):
     for word in keywords:
         if word in text:
             return True
     return False
 
 def process_chunk(chunk_index: int, chunk: tuple):
-
+    # Process chunk
+    data = list(filter(lambda item: compare_funct(lang_func_norm_dummy(item['text'])), chunk)) # TODO: make it more efficient?
+    table = pa.Table.from_pylist(data)
+    pq.write_table(table, f"{PATH_OUT}{chunk_index}.parquet")
+    return chunk_index
 
 
 dataset = datasets.load_dataset("HPLT/HPLT2.0_cleaned", lang, split='train', streaming=True)
@@ -75,7 +89,7 @@ def batched(iterator, n):
 
 iterator = it.islice(iter(dataset), 10000)
 
-parallel = Parallel(n_jobs=-1) # TODO: config backend etc
+parallel = Parallel(n_jobs=-1) # TODO: config backend
 
 # Launch the processing
 parallel(delayed(process_chunk)(i, batch) for i, batch in tqdm(batched(iterator, BATCH_SIZE)))
