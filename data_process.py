@@ -27,8 +27,10 @@ def lang_func_norm_dummy(text):
 # Normalize the keys in the list
 
 def compare_funct(text, keywords):
-    # Substring search
-    # return Bool
+    for word in keywords:
+        if word in text:
+            return True
+    return False
 
 def process_chunk(chunk_index: int, chunk: tuple):
 
