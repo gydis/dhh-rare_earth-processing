@@ -3,6 +3,7 @@ from joblib import Parallel, delayed
 import itertools as it
 from tqdm import tqdm
 import sys
+import pandas as pd
 
 #all lower case
 #get rid of punctuation?
@@ -15,6 +16,16 @@ import sys
 lang = "rus_Cyrl"
 BATCH_SIZE = 1000
 
+lang_dict = {
+    "rus_Cyrl": "Russian",
+    "eng_Latn" : "English",
+    "fin_Latn" : "Finnish",
+    "zho_Hans" : "Chinese",
+    "deu_Latn" : "German",
+    "ben_Beng" : "Bangla",
+    "hin_Deva" : "Hindi"
+            }
+
 # The slice from language partition as a parameter
 
 # lang_tofunc_dict?
@@ -25,6 +36,20 @@ def lang_func_norm_dummy(text):
 
 # Read the key csv
 # Normalize the keys in the list
+
+keywords_df = pd.read_csv('Keywords - Лист1.csv')  
+
+def normalize_keywords(lang, keywords):
+    language = lang_dict[lang]
+    lang_keywords = keywords_df[language].dropna()
+    normalized_keywords = [lang_func_norm_dummy(word) for word in lang_keywords]
+    return normalized_keywords
+
+dict_of_normalized_keyword_lists = {}
+
+for l in lang_dict:
+    normalized_keywords = normaliz_keywords(l, keywords_df)
+    dict_of_normalized_keyword_lists[l] = normalized_keywords
 
 def compare_funct(text, keywords):
     for word in keywords:
