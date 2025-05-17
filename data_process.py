@@ -8,6 +8,7 @@ import os
 import pyarrow as pa
 import pyarrow.parquet as pq
 import random
+import re
 
 #all lower case
 #get rid of punctuation?
@@ -59,11 +60,10 @@ for l in lang_dict:
     normalized_keywords = normalize_keywords(l, keywords_df)
     dict_of_normalized_keyword_lists[l] = normalized_keywords
 
-# TODO: rn there's a bug, probably should use exact stem matches instead of substring matches
 keywords = dict_of_normalized_keyword_lists[lang]
 def compare_funct(text):
     for word in keywords:
-        if word in text:
+        if re.search(rf'/b{re.escape(word)}/b', text):
             return True
     return False
 
