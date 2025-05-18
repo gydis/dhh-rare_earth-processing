@@ -11,6 +11,7 @@ import random
 import argparse
 from lang_funcs import lang_to_func
 import time
+# import re
 
 #all lower case
 #get rid of punctuation?
@@ -58,10 +59,6 @@ if args.chunk_ind is None:
     print("Chunk index not provided")
     sys.exit(1)
 
-lang = "rus_Cyrl" # TODO remove
-chunk_ind = 0 # TODO remove
-chunk_size = 100000 # TODO remove
-
 PATH_OUT = "data/processed/"
 os.makedirs(PATH_OUT, exist_ok=True)
 
@@ -96,10 +93,10 @@ def compare_funct(text):
         w_len = len(words)
         if w_len not in sets.keys():
             sets[w_len] = set([" ".join(split_text[i:i+w_len]) for i in range(len(split_text)-w_len+1)])
-        # if word in sets[w_len]:
-        #     return True
-        if re.search(rf'/b{re.escape(word)}/b', sets[w_len]):
+        if word in sets[w_len]:
             return True
+        # if re.search(rf'/b{re.escape(word)}/b', sets[w_len]):
+        #     return True
     return False
 
 print(f"Loading dataset, {time.strftime("%H:%M:%S", time.localtime())}")
