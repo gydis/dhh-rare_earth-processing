@@ -1,0 +1,12 @@
+datasets
+joblib
+tqdm
+pandas
+pyarrow
+argparse
+spacy
+pkuseg
+bangla_stemmer
+
+#python -m spacy download de_core_news_sm
+#python -m spacy download ru_core_news_sm
