@@ -28,6 +28,7 @@ parser.add_argument('--lang', type=str, help='Language code (e.g., rus_Cyrl, eng
 parser.add_argument('--batch_size', type=int, default=10000, help='Batch size for processing into one parquet file')
 parser.add_argument('--chunk_size', type=int, help='Chunk size for processing on the node')
 parser.add_argument('--chunk_ind', type=int, help='Index of the chunk to process')
+parser.add_argument('--output_dir', type=str, default='data/processed/', help='Output directory for the processed data')
 
 args = parser.parse_args()
 
@@ -59,7 +60,7 @@ if args.chunk_ind is None:
     print("Chunk index not provided")
     sys.exit(1)
 
-PATH_OUT = "data/processed/"
+PATH_OUT = args.output_dir
 os.makedirs(PATH_OUT, exist_ok=True)
 
 lang_to_keycol = {
@@ -99,11 +100,11 @@ def compare_funct(text):
         #     return True
     return False
 
-print(f"Loading dataset, {time.strftime("%H:%M:%S", time.localtime())}")
+print(f'Loading dataset, {time.strftime("%H:%M:%S", time.localtime())}')
 dataset = datasets.load_dataset("HPLT/HPLT2.0_cleaned", lang, split='train', streaming=True)
 dataset = dataset.skip(chunk_ind * chunk_size).take(chunk_size)
 dataset_batched = dataset.batch(BATCH_SIZE)
-print(f"Dataset Loaded, {time.strftime("%H:%M:%S", time.localtime())}")
+print(f'Dataset Loaded, {time.strftime("%H:%M:%S", time.localtime())}')
 
 def process_batch(batch_index: int, batch: dict) -> int:
     # Process batch
@@ -120,6 +121,6 @@ iterator = iter(dataset_batched)
 parallel = Parallel(n_jobs=-1) # TODO: config backend
 
 # Launch the processing
-print(f"Processing batches, {time.strftime("%H:%M:%S", time.localtime())}")
+print(f'Processing batches, {time.strftime("%H:%M:%S", time.localtime())}')
 parallel(delayed(process_batch)(i, batch) for i, batch in tqdm(enumerate(iterator)))
-print(f"Processing finished, {time.strftime("%H:%M:%S", time.localtime())}")
+print(f'Processing finished, {time.strftime("%H:%M:%S", time.localtime())}')

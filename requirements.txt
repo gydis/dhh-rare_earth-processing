@@ -1,4 +1,5 @@
 datasets
+numpy<2
 joblib
 tqdm
 pandas
@@ -8,6 +9,8 @@ spacy
 pkuseg
 bangla_stemmer
 trankit
+hf_xet
 
+#install numpy beforehand
 #python -m spacy download de_core_news_sm
 #python -m spacy download ru_core_news_sm
