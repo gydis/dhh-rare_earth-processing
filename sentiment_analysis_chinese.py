@@ -26,11 +26,10 @@ def analyze_senti_informal_ch(text):
     score = c.predict(text)
     return score
 
-def analyze_sentiment_chinese(csvfile, formality):
+def analyze_sentiment_chinese(csvfile):
     df = pd.read_csv(csvfile)
-    if formality == "formal":
-        df["sentiment / formal"] = df["text"].apply(analyze_senti_formal_ch)
-        df.to_csv("formal_sentiment_analysis_ch.csv", index=False)
-    elif formality == "informal":
-        df["sentiment / informal"] = df["text"].apply(analyze_senti_informal_ch)
-        df.to_csv("informal_sentiment_analysis_ch.csv", index=False)
+    mask_formal = df["labels"].str.contains("IN|en|ra|dtp|lt|fi|oi|NA|ne|sr|nb|on", na=False)
+    df.loc[mask_formal, "sentiment / formal"] = df.loc[mask_formal, "text"].progress_apply(analyze_senti_formal)
+    mask_informal = df["labels"].str.contains("LY|SP|it|os|HI|re|oh|OP|rv|ob|rs|av|oo|IP|ds|ed|oe|ID", na=False)
+    df.loc[mask_informal, "sentiment / informal"] = df.loc[mask_informal, "text"].progress_apply(analyze_senti_informal)
+    df.to_csv("sentiment_analysis_ch.csv", index=False)
