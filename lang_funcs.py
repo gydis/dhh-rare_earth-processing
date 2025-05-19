@@ -5,7 +5,7 @@ def lang_to_func(lang):
         case "eng_Latn":
             raise ValueError("English normalization is not implemented yet.")
         case "fin_Latn":
-            return ValueError("Finnish normalization is not implemented yet.")
+            return normalize_finnish
         case "zho_Hans":
             return normalize_chinese
         case "deu_Latn":
@@ -61,6 +61,7 @@ def normalize_bengali(text):
 # Finnish:
 
 from trankit import Pipeline
+p = Pipeline(lang='finnish')
 
 def lemmatize_full_finnish_text(text):
     text = text.lower()
@@ -83,4 +84,3 @@ def normalize_finnish(text):
         normalized_text = lemmatize_full_finnish_text(text)
     return normalized_text
 
-p = Pipeline(lang='finnish')
