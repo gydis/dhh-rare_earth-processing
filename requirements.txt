@@ -1,4 +1,4 @@
-datasets
+datasets<3.0.0
 numpy<2
 joblib
 tqdm
@@ -10,6 +10,10 @@ pkuseg
 bangla_stemmer
 trankit
 hf_xet
+addict
+torch
+transformers
+pillow
 
 #install numpy beforehand
 #python -m spacy download de_core_news_sm
