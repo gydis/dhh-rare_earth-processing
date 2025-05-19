@@ -57,3 +57,30 @@ def normalize_bengali(text):
         stm = stmr.stem(word)
         stems.append(stm)
     return " ".join(stems)
+
+# Finnish:
+
+from trankit import Pipeline
+
+def lemmatize_full_finnish_text(text):
+    text = text.lower()
+    text.replace('\n', ' ')
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    output = p.lemmatize(text, is_sent=True)
+    lemmatized_text = ' '.join(item['lemma'] for item in output['tokens'])
+    return lemmatized_text
+
+def lemmatize_finnish_keywords(keyword):
+    sentence = f'{keyword} on suomen kielen sana.'
+    lemmatized_sentence = lemmatize_full_finnish_text(sentence)
+    lemmatized_word = lemmatized_sentence.split()[0]
+    return lemmatized_word
+
+def normalize_finnish(text):
+    if (len(text.split()) < 2):
+        normalized_text = lemmatize_finnish_keywords(text)
+    else:
+        normalized_text = lemmatize_full_finnish_text(text)
+    return normalized_text
+
+p = Pipeline(lang='finnish')
