@@ -7,22 +7,28 @@ import os
 from functools import cache
 from multiprocessing import Pool
 from pathlib import Path
+from typing import Iterable, Any
 
 import nltk
 import regex as re
 import pandas as pd
+import zstandard as zstd
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from tqdm import tqdm
 
 LANGUAGE = "zho_Hans"
-SAMPLE_FILE = Path(f"{LANGUAGE}.shuf")
+SAMPLE_FILE = Path(f"{LANGUAGE}.shuf.zst")
 N_RESULTS = 200
 
-def read_json_lines(path: Path):
-    with path.open("r") as f:
-        for line in f:
-            yield json.loads(line)
+def read_zstd_json_lines(path: Path, *, encoding = "utf-8") -> Iterable[Any]:
+    """Return an iterator over the records in a Zstandard-compressed JSON Lines file"""
+    with path.open("rb") as f:
+        ctx = zstd.ZstdDecompressor()
+        with ctx.stream_reader(f) as reader:
+            textio = io.TextIOWrapper(reader, encoding=encoding)
+            for line in textio:
+                yield json.loads(line.rstrip("\n"))
 
 @cache
 def _cached_pkuseg():
@@ -84,7 +90,7 @@ if __name__ == "__main__":
     nltk.download('punkt_tab')
     nltk.download('wordnet')
 
-    documents = read_json_lines(SAMPLE_FILE)
+    documents = read_zstd_json_lines(SAMPLE_FILE)
 
     matches = []
     search_count = 0
