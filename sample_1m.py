@@ -79,13 +79,6 @@ def scan(doc):
         return None
     return doc if keyword_search(doc) else None
 
-def pscan_unordered(predicate, iterable, *, chunksize = 1):
-    with Pool(os.cpu_count() - 1) as pool:
-        for result in pool.imap_unordered(predicate, iterable, chunksize=chunksize):
-            if result is None:
-                continue
-            yield result
-
 if __name__ == "__main__":
     nltk.download('punkt')
     nltk.download('punkt_tab')
