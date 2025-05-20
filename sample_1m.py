@@ -4,6 +4,7 @@ warnings.filterwarnings("ignore", module="urllib3")
 import io
 import json
 import os
+import string
 from functools import cache
 from multiprocessing import Pool
 from pathlib import Path
@@ -17,7 +18,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from tqdm import tqdm
 
-LANGUAGE = "zho_Hans"
+LANGUAGE = "fin_Latn"
 SAMPLE_FILE = Path(f"{LANGUAGE}.shuf.zst")
 N_RESULTS = 200
 
@@ -40,6 +41,11 @@ def _cached_bangla_stemmer():
     from bangla_stemmer.stemmer.stemmer import BanglaStemmer
     BanglaStemmer()
 
+@cache
+def _cached_stanza_pipeline_fin():
+    import stanza
+    return stanza.Pipeline(lang="fi", processors="tokenize,mwt,lemma")
+
 def _normalize_text_eng(text):
     text = text.lower()
     tokens = word_tokenize(text)
@@ -49,6 +55,14 @@ def _normalize_text_eng(text):
 def _normalize_text_zho_hans(text):
     tokens = _cached_pkuseg().cut(text)
     return " ".join(t for t in tokens if t.isalnum())
+
+def _normalize_text_fin(text):
+    pipeline = _cached_stanza_pipeline_fin()
+    doc = pipeline(text)
+    tokens = (w.lemma for s in doc.sentences for w in s.words)
+    # Lemmatized tokens might contain mwt separators ("#") so we need to reject tokens
+    # based on exact comparison with punctuation characters instead of simple `t.isalnum()`
+    return " ".join(t for t in tokens if t not in string.punctuation)
 
 def _normalize_text_ben(text):  
     from bnlp import NLTKTokenizer
@@ -61,6 +75,7 @@ def _normalize_text_ben(text):
 
 _NORMALIZERS = {
     "eng_Latn": _normalize_text_eng,
+    "fin_Latn": _normalize_text_fin,
     "zho_Hans": _normalize_text_zho_hans,
     "ben_Beng": _normalize_text_ben
 }
