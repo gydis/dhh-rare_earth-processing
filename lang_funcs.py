@@ -66,9 +66,11 @@ p = Pipeline(lang='finnish')
 def lemmatize_full_finnish_text(text):
     text = text.lower()
     text.replace('\n', ' ')
-    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = ''.join(list(filter(lambda x: x.isalpha() or x == ' ' or x == '-', text)))
     output = p.lemmatize(text, is_sent=True)
-    lemmatized_text = ' '.join(item['lemma'] for item in output['tokens'])
+    lemmatized_text = ' '.join(
+        item.get('lemma') or ' '.join(exp.get('lemma', '') for exp in item.get('expanded', []))
+        for item in output['tokens'])
     return lemmatized_text
 
 def lemmatize_finnish_keywords(keyword):
