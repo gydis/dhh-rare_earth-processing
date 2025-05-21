@@ -92,16 +92,6 @@ _NORMALIZERS = {
     "rus_Cyrl": _normalize_text_rus,
 }
 
-_KEYWORD_COLS= {
-    "rus_Cyrl": "Russian",
-    "eng_Latn" : "English",
-    "fin_Latn" : "Finnish",
-    "zho_Hans" : "Chinese",
-    "deu_Latn" : "German",
-    "ben_Beng" : "Bangla",
-    "hin_Deva" : "Hindi"
-}
-
 def normalize_text(text):
     return _NORMALIZERS[LANGUAGE](text)
 
@@ -109,9 +99,7 @@ def read_keywords(path: Path):
     with path.open("r") as f:
         return [normalize_text(kw.strip()) for kw in f.readlines() if not kw.startswith("#")]
     
-keywords_df = pd.read_csv('keywords.csv')  
-
-lang_keywords = keywords_df[_KEYWORD_COLS[LANGUAGE]].dropna()
+lang_keywords = read_keywords(Path(f"keywords.{LANGUAGE}.txt"))
 
 KEYWORDS = []
 ngram_lens = set()
@@ -146,8 +134,6 @@ def keyword_search_set(doc):
             if keyword in ngram_sets[w_len]:
                 return True
     return False
-
-# KEYWORDS = read_keywords(Path(f"keywords.{LANGUAGE}.txt"))
 
 PATTERN = re.compile(rf"[^\w+]({'|'.join(KEYWORDS)})[^\w+]")
 
