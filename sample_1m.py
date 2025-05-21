@@ -100,7 +100,7 @@ _KEYWORD_COLS= {
     "deu_Latn" : "German",
     "ben_Beng" : "Bangla",
     "hin_Deva" : "Hindi"
-            }
+}
 
 def normalize_text(text):
     return _NORMALIZERS[LANGUAGE](text)
@@ -120,7 +120,7 @@ for keyword in lang_keywords:
         keywords = keyword.split('&')
         for k in keywords:
             ngram_lens.add(len(k.split(" ")))
-        keywords = list(map(lambda k: normalize_text(k), keywords))
+        keywords = list(map(normalize_text, keywords))
         KEYWORDS.append('&'.join(keywords))
     else:
         ngram_lens.add(len(keyword.split(" ")))
