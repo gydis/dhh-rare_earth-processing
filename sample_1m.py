@@ -48,6 +48,11 @@ def _cached_stanza_pipeline_fin():
     import stanza
     return stanza.Pipeline(lang="fi", processors="tokenize,mwt,lemma")
 
+@cache
+def _cached_spacy_pipeline_deu():
+    import spacy
+    return spacy.load("de_core_news_sm")
+
 def _normalize_text_eng(text):
     text = text.lower()
     tokens = word_tokenize(text)
@@ -65,6 +70,11 @@ def _normalize_text_fin(text):
     # Lemmatized tokens might contain mwt separators ("#") so we need to reject tokens
     # based on exact comparison with punctuation characters instead of simple `t.isalnum()`
     return " ".join(t for t in tokens if t not in string.punctuation)
+
+def _normalize_text_deu(text):
+    pipeline = _cached_spacy_pipeline_deu()
+    doc = pipeline(text.lower())
+    return " ".join(token.lemma_ for token in doc)
 
 def _normalize_text_ben(text):  
     from bnlp import NLTKTokenizer
@@ -90,6 +100,7 @@ _NORMALIZERS = {
     "zho_Hans": _normalize_text_zho_hans,
     "ben_Beng": _normalize_text_ben,
     "rus_Cyrl": _normalize_text_rus,
+    "deu_Latn": _normalize_text_deu,
 }
 
 def normalize_text(text):
