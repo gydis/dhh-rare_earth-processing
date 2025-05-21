@@ -160,10 +160,10 @@ if __name__ == "__main__":
     with Pool(os.cpu_count() - 1) as pool, tqdm(total=N_RESULTS, desc="Keyword search") as pbar:
         for result in pool.imap_unordered(scan, documents, chunksize=10):
             search_count += 1
+            pbar.set_postfix(n=int(search_count))
             if result is None:
                 continue
             matches.append(result)
-            pbar.set_postfix(n=search_count)
             pbar.update()
             if len(matches) >= N_RESULTS:
                 pool.terminate()
