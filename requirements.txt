@@ -1,19 +1,15 @@
-datasets<3.0.0
-numpy<2
+numpy
 joblib
 tqdm
 pandas
-pyarrow
 argparse
+nltk
+spacy-pkuseg
 spacy
-pkuseg
+stanza
 bangla_stemmer
-trankit
-hf_xet
-addict
 torch
 transformers
-pillow
 zstandard
 
 #install numpy beforehand

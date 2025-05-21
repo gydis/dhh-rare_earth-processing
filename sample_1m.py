@@ -35,7 +35,7 @@ def read_zstd_json_lines(path: Path, *, encoding = "utf-8") -> Iterable[Any]:
 
 @cache
 def _cached_pkuseg():
-    import pkuseg
+    import spacy_pkuseg as pkuseg
     return pkuseg.pkuseg()
 
 @cache
