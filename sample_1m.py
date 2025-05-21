@@ -123,12 +123,14 @@ def keyword_search_set(doc):
     for keyword in KEYWORDS:
         if '&' in keyword:
             keywords = keyword.split('&')
-            res = True
+            assert len(keywords) > 0
+            is_compound_match = True
             for k in keywords:
                 w_len = len(k.split(" "))
-                if not k in ngram_sets[w_len]:
-                    res = res and False
-            return res
+                if k not in ngram_sets[w_len]:
+                    is_compound_match = False
+            if is_compound_match:
+                return True
         else:
             w_len = len(keyword.split(" "))
             if keyword in ngram_sets[w_len]:
