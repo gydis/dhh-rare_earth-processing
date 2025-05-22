@@ -20,7 +20,7 @@ from tqdm import tqdm
 import spacy
 import string
 
-LANGUAGE = "eng_Latn"  # Change this to the desired language code
+LANGUAGE = "rus_Cyrl"  # Change this to the desired language code
 SAMPLE_FILE = Path(f"data/{LANGUAGE}.shuf.zst")
 N_RESULTS = 200
 
@@ -35,7 +35,8 @@ def read_zstd_json_lines(path: Path, *, encoding = "utf-8") -> Iterable[Any]:
 
 @cache
 def _cached_pkuseg():
-    import spacy_pkuseg as pkuseg
+    import pkuseg
+    # import spacy_pkuseg as pkuseg
     return pkuseg.pkuseg()
 
 @cache
@@ -90,6 +91,8 @@ def _normalize_text_rus(text):
     text = text.lower()
     text.replace('\n', ' ')
     text = text.translate(str.maketrans('', '', string.punctuation))
+    if len(text) > 1000000:
+        text = text[:1000000]
     doc = nlp_ru(text.lower())
     normed_text = ' '.join([token.lemma_ for token in doc])
     return normed_text
