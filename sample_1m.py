@@ -20,7 +20,7 @@ from tqdm import tqdm
 import spacy
 import string
 
-LANGUAGE = "fin_Latn"
+LANGUAGE = "eng_Latn"  # Change this to the desired language code
 SAMPLE_FILE = Path(f"data/{LANGUAGE}.shuf.zst")
 N_RESULTS = 200
 
@@ -110,16 +110,22 @@ def read_keywords(path: Path):
     with path.open("r") as f:
         return [normalize_text(kw.strip()) for kw in f.readlines() if not kw.startswith("#")]
     
-lang_keywords = read_keywords(Path(f"keywords.{LANGUAGE}.txt"))
+# lang_keywords = read_keywords(Path(f"keywords.{LANGUAGE}.txt"))
+# df = pd.read_csv("keywords.csv")
+# lang_keywords = (df["Russian"]).dropna()
+df = pd.read_csv("keywords_combined_en.csv")
+lang_keywords = (df.iloc[:,2]).dropna()
+# lang_keywords = ["редкоземельные элементы&добыча"]
+# lang_keywords = ["mining&rare earth&open-pit", "mining&rare earth&ore extraction", "mining&rare earth&underground ", "mining&rare earth&surface", "mining&rare earth&strip ", "mining&rare earth&placer", "mining&rare earth&exploration", "mining&rare earth&miner", "mining&rare earth&quarrying", "mining&rare earth&development", "mining&rare earth&acid drainage", "mining&rare earth&closure", "mining&rare earth&permit", "mining&rare earth&accident", "mining&rare earth&fire", "mining&rare earth&flooding", "mining&rare earth&ban", "mining&rare earth&illegal", "mining&rare earth&black lung disease", "mining&rare earth&royalties", "mining&rare earth&shaft sinking", "mining&rare earth&drilling", "mining&rare earth&accident", "mining&rare earth&license", "mining&rare earth&royalties", "mining&rare earth&state-run ", "mining&rare earth&state register of mineral deposits", "mining&rare earth&Dangerous Substances and Explosive Atmospheres Regulations", "mining&rare earth&Mineral Development Act", "mining&rare earth&rights", "mining&rare earth&permit", "mining&rare earth&law", "mining&rare earth&regulation", "mining&rare earth&ore transportation", "mining&rare earth&engineering", "mining&rare earth&operation", "mining&rare earth&industry", "mining&rare earth&green", "mining&rare earth&company", "mining&rare earth&refining", "mining&rare earth&critical minerals reserves", "mining&rare earth&critical minerals", "mining&rare earth&legislation", "mining&rare earth&lease", "mining&rare earth&Environmental Impact Statement", "mining&rare earth&extraction", "mining&rare earth&pollution", "mining&rare earth&health", "mining&rare earth&contamination", "mining&rare earth&environment  ", "mining&rare earth&worker", "mining&rare earth&indigenous rights", "mining&rare earth&yttrium", "mining&rare earth&scandium", "mining&rare earth&samarium", "mining&rare earth&terbium", "mining&rare earth&neodymium", "mining&rare earth&thulium", "mining&rare earth&holomium", "mining&rare earth&praseodymium", "mining&rare earth&europium", "mining&rare earth&gadolinium", "mining&rare earth&promethium", "mining&rare earth&dysprosium", "mining&rare earth&cerium", "mining&rare earth&ytterbium", "mining&rare earth&lutetium", "mining&rare earth&lanthanum", "mining&rare earth&y ", "mining&rare earth&sc ", "mining&rare earth&la ", "mining&rare earth&ce", "mining&rare earth&pr ", "mining&rare earth&nd", "mining&rare earth&pm", "mining&rare earth&sm", "mining&rare earth&eu ", "mining&rare earth&gd", "mining&rare earth&tb", "mining&rare earth&dy", "mining&rare earth&ho ", "mining&rare earth&er", "mining&rare earth&tm", "mining&rare earth&yb", "mining&rare earth&lu", "mining&rare earth&deforestation", "mining&rare earth&forest", "mining&rare earth&ecology", "mining&rare earth&ecological", "mining&rare earth&climate change", "mining&rare earth&green washing", "mining&rare earth&indigenous", "mining&rare earth&displacement", "mining&rare earth&exploitation", "rare earth materials&IEA"]
 
 KEYWORDS = []
 ngram_lens = set()
 for keyword in lang_keywords:
     if '&' in keyword:
         keywords = keyword.split('&')
+        keywords = list(map(normalize_text, keywords))
         for k in keywords:
             ngram_lens.add(len(k.split(" ")))
-        keywords = list(map(normalize_text, keywords))
         KEYWORDS.append('&'.join(keywords))
     else:
         ngram_lens.add(len(keyword.split(" ")))
@@ -157,7 +163,7 @@ def keyword_search(doc):
 def scan(doc):
     if doc["u"].startswith("https://en.wikipedia.org/wiki/"):
         return None
-    return doc if keyword_search(doc) else None
+    return doc if keyword_search_set(doc) else None
 
 if __name__ == "__main__":
     nltk.download('punkt')
@@ -185,4 +191,4 @@ if __name__ == "__main__":
     df = pd.DataFrame(matches)
     df = df.drop(columns=['f', 'o', 's', 'rs', 'c', 'collection', 'lang', 'prob', 'seg_langs', 'robotstxt', 'filter', 'pii', 'doc_scores'])
 
-    df.to_csv(f"samples-{LANGUAGE}-combine_test.csv")
+    df.to_csv(f"samples-{LANGUAGE}-combined-v2.csv")
